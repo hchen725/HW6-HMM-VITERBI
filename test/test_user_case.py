@@ -1,9 +1,9 @@
 """
 UCSF BMI203: Biocomputing Algorithms
-Author:
-Date: 
-Program: 
-Description:
+Author: Han Chen   
+Date: 2023-02-24
+Program: models
+Description: Test user cases for HMM VITERBI
 """
 import pytest
 import numpy as np
@@ -12,7 +12,7 @@ from models.decoders import ViterbiAlgorithm
 
 
 def test_use_case_lecture():
-    """_summary_
+    """Test case re: funding source and student happiness
     """
     # index annotation observation_states=[i,j]    
     observation_states = ['committed','ambivalent'] # A graduate student's dedication to their rotation lab
@@ -50,7 +50,7 @@ def test_use_case_lecture():
 
 
 def test_user_case_one():
-    """_summary_
+    """Test case re: traffic conditions
     """
     # index annotation observation_states=[i,j]    
     observation_states = ['on-time','late'] 
@@ -90,12 +90,101 @@ def test_user_case_one():
 
 
 def test_user_case_two():
-    """_summary_
+    """Test case re: read books or not
+    Hypothesis being that if it's a fiction book, it's more likely to have been read. 
     """
-    # TODO
+    observation_states = ['read','unread'] 
+    hidden_states = ['fiction','nonfiction'] 
+
+    prior_probs = np.array([0.6, 0.4])
+    transition_probs = np.array([0.6, 0.4, 0.7, 0.3]).reshape(2,2)
+    emission_probs = np.array([0.8, 0.2, 0.4, 0.6]).reshape(2,2)
+
+    hmm_fiction_book = HiddenMarkovModel(observation_states = observation_states,
+                                            hidden_states = hidden_states,
+                                            prior_probabilities = prior_probs,
+                                            transition_probabilities = transition_probs,
+                                            emission_probabilities = emission_probs)
+
+    fiction_viterbi = ViterbiAlgorithm(hmm_fiction_book)
+
+    observed_states = ['read', 'read', 'unread', 'read', 'unread', 'unread', 'unread', 'read']
+
+    pred_seq = fiction_viterbi.best_hidden_state_sequence(observed_states)
+    seq = ['fiction', 'fiction', 'nonfiction', 'fiction', 'nonfiction', 'fiction', 'nonfiction', 'fiction']
+    assert np.alltrue(pred_seq == seq)
 
 
 def test_user_case_three():
-    """_summary_
+    """Testing improper inputs
     """
-    # TODO
+    # testing improper number of prior probabilites
+    observation_states1 = ['obs1', 'obs2', 'obs3']
+    hidden_states1 = ['hid1','hid2'] 
+
+    prior_probs1 = np.array([0.6, 0.4, 0.2])
+    transition_probs1 = np.array([0.6, 0.4, 0.7, 0.3]).reshape(2,2)
+    emission_probs1 = np.array([0.8, 0.2, 0.4, 0.6]).reshape(2,2)
+    with pytest.raises(ValueError, match = "Length of prior probabilities should match number of hidden states present"):
+        HiddenMarkovModel(observation_states = observation_states1,
+                            hidden_states = hidden_states1,
+                            prior_probabilities = prior_probs1,
+                            transition_probabilities = transition_probs1,
+                            emission_probabilities = emission_probs1)
+        
+    # Testing non square matrix
+    observation_states2 = ['obs1', 'obs2', 'obs3']
+    hidden_states2 = ['hid1','hid2'] 
+
+    prior_probs2 = np.array([0.6, 0.4])
+    transition_probs2 = np.array([0.6, 0.4, 0.7, 0.3, 0.8, 0.3]).reshape(3,2)
+    emission_probs2 = np.array([0.8, 0.2, 0.4, 0.6]).reshape(2,2)
+    with pytest.raises(ValueError, match = "Transition probabilities should be a square matrix"):
+        HiddenMarkovModel(observation_states = observation_states2,
+                            hidden_states = hidden_states2,
+                            prior_probabilities = prior_probs2,
+                            transition_probabilities = transition_probs2,
+                            emission_probabilities = emission_probs2)
+        
+
+    # Testing dimensions not matching the hidden states
+    observation_states3 = ['obs1', 'obs2', 'obs3']
+    hidden_states3 = ['hid1','hid2', 'hid3'] 
+
+    prior_probs3 = np.array([0.6, 0.4, 0.2])
+    transition_probs3 = np.array([0.6, 0.4, 0.7, 0.3]).reshape(2,2)
+    emission_probs3 = np.array([0.8, 0.2, 0.4, 0.6]).reshape(2,2)
+    with pytest.raises(ValueError, match = "Transition probabilities dimensions should match length of hidden states"):
+        HiddenMarkovModel(observation_states = observation_states3,
+                            hidden_states = hidden_states3,
+                            prior_probabilities = prior_probs3,
+                            transition_probabilities = transition_probs3,
+                            emission_probabilities = emission_probs3)
+        
+
+    # Testing emission probs
+    observation_states4 = ['obs1', 'obs2', 'obs3']
+    hidden_states4 = ['hid1','hid2'] 
+
+    prior_probs4 = np.array([0.6, 0.4])
+    transition_probs4 = np.array([0.6, 0.4, 0.7, 0.3]).reshape(2,2)
+    emission_probs4 = np.array([0.8, 0.2, 0.4, 0.6, 0.8, 0.2]).reshape(3,2)
+    with pytest.raises(ValueError, match = "Emission probabilities should have rows matching number of hidden observations"):
+        HiddenMarkovModel(observation_states = observation_states4,
+                            hidden_states = hidden_states4,
+                            prior_probabilities = prior_probs4,
+                            transition_probabilities = transition_probs4,
+                            emission_probabilities = emission_probs4)
+        
+    observation_states5 = ['obs1', 'obs2', 'obs3']
+    hidden_states5 = ['hid1','hid2'] 
+
+    prior_probs5 = np.array([0.6, 0.4])
+    transition_probs5 = np.array([0.6, 0.4, 0.7, 0.3]).reshape(2,2)
+    emission_probs5 = np.array([0.8, 0.2, 0.4, 0.6]).reshape(2,2)
+    with pytest.raises(ValueError, match = "Emission probabilities should have columns matching number of observation states"):
+        HiddenMarkovModel(observation_states = observation_states5,
+                            hidden_states = hidden_states5,
+                            prior_probabilities = prior_probs5,
+                            transition_probabilities = transition_probs5,
+                            emission_probabilities = emission_probs5)

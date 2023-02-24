@@ -11,7 +11,7 @@ from models.hmm import HiddenMarkovModel
 from models.decoders import ViterbiAlgorithm
 
 def test_deliverable():
-    """_summary_
+    """Test case with some heart data
     """
     # index annotation observation_states=[i,j] 
     observation_states = ['regulatory', 'regulatory-potential'] # observed regulatory activity in the TBX5 TAD of cardiomyocytes

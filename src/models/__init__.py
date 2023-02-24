@@ -1,9 +1,9 @@
 """
 UCSF BMI203: Biocomputing Algorithms
 Author: Han Chen
-Date: 
-Package: 
-Description: 
+Date: 2023-02-24
+Package: models
+Description: HMM and Viterbi
 """
 import numpy as np
 from .hmm import *
