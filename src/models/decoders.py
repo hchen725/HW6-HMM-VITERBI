@@ -2,38 +2,27 @@ import copy
 import numpy as np
 
 class ViterbiAlgorithm:
-    """_summary_
+    """Implementation of the Viterbi Algorithm
     """    
 
     def __init__(self, hmm_object):
-        """_summary_
+        """Initialization of the Viterbi Algorithm
 
         Args:
-            hmm_object (_type_): _description_
-        """              
+            hmm_object (hmm_object): HMM object created from initializing HiddenMarkovModel
+        """        
         self.hmm_object = hmm_object
     
-    def trellis_node_step (self, prev_delta, prob_emiss, prob_trans, current_observation):
-        # Multiply previous delta with transition probabilities 
-        _delta_trans = np.multiply(prev_delta, prob_trans.T)
-        # Get the likely scenario of the node
-        probable_state = np.argmax(_delta_trans, axis = 1)
-        probable_state_probs = np.amax(_delta_trans, axis = 1)
-        # Calculate the new delta
-        new_delta = probable_state_probs * prob_emiss[:, current_observation]
-        # scale delta 
-        new_delta = new_delta / np.sum(new_delta)
 
-        return new_delta, probable_state
-
-    def best_hidden_state_sequence(self, decode_observation_states: np.ndarray) -> np.ndarray:
-        """_summary_
+    def best_hidden_state_sequence(self, 
+                                   decode_observation_states: np.ndarray) -> np.ndarray:
+        """Find the hidden state sequence for a set of observation states
 
         Args:
-            decode_observation_states (np.ndarray): _description_
+            decode_observation_states (np.ndarray): Observation states to decode
 
         Returns:
-            np.ndarray: _description_s
+            hidden_state_path (np.ndarray): Most probable sequence of of hidden states 
         """        
         
         # Pull out hmm object for easier ref
@@ -45,66 +34,42 @@ class ViterbiAlgorithm:
         transition_probs = self.hmm_object.transition_probabilities
         emission_probs = self.hmm_object.emission_probabilities
 
-        # # Initialize path (i.e., np.arrays) to store the hidden sequence states returning the maximum probability
-        # path = np.zeros((len(decode_observation_states), 
-        #                  len(hidden_states)))
-        # path[0,:] = [hidden_state_index for hidden_state_index in range(len(hidden_states))]
+        # Get the number of possible hidden states
+        num_hidden = len(hidden_states)
+        # Get the number of observations to decode
+        num_obs = len(decode_observation_states) 
 
-        # best_path = np.zeros((len(decode_observation_states), 
-        #                       len(hidden_states)))        
-        
-        # Initialize to hold paths of previous states:
-        all_prev_states = np.zeros((len(decode_observation_states), 
-                                    len(hidden_states)))
-        all_prev_states[0,:] = [hidden_state_index for hidden_state_index in range(len(hidden_states))]
+        # Initialize to store paths
+        paths = np.zeros((num_hidden, num_obs))
+        paths[:,0] = [hidden_state_index for hidden_state_index in range(len(hidden_states))]
 
-        # calculate initial delta
-        delta = np.multiply(prior_probs, emission_probs[:,observation_states_dict[decode_observation_states[0]]])
-        # Scale
-        delta = delta / np.sum(delta)
-        # Loop through each observation state node:
-        for trellis_node in range(1, len(decode_observation_states)): 
-             # Get the current observation state
-            current_observation = observation_states_dict[decode_observation_states[trellis_node]]
-            # Calculate state and update delta
-            delta, prev_states = self.trellis_node_step(delta, emission_probs, transition_probs, current_observation)
-            # Store states
-            all_prev_states[trellis_node, :] = prev_states
+        # Initialize to store all deltas that are calculated
+        all_deltas = np.zeros((num_hidden, num_obs)) # all deltas
+        all_deltas[:, 0] = np.multiply(prior_probs, emission_probs[:, observation_states_dict[decode_observation_states[0]]])
+
+        # Iterate through the node
+        for trellis_node in range(1, num_obs):
+            # Get the current observation state
+            current_observation_state = observation_states_dict[decode_observation_states[trellis_node]]
+            prev_delta = all_deltas[:, trellis_node-1]
+            for _hidden_state in range(0, num_hidden):
+                # Multiple previous delta
+                delta_trans = np.multiply(transition_probs[:, _hidden_state], prev_delta)
+                # Update path with most probable delta
+                paths[_hidden_state, trellis_node] = np.argmax(delta_trans)
+                # Compute new delta with the current observation satte
+                new_delta = np.max(delta_trans) * emission_probs[_hidden_state, current_observation_state]
+                # Update deltas
+                all_deltas[_hidden_state, trellis_node] = new_delta
+                
         
-        # Back trace to get highest probability sequence
-        state = np.argmax(delta)
-        #sequence_prob = np.amax(delta)
-        best_path = []
-        for prev_states in all_prev_states[::-1]:
-            state = prev_states[int(state)]
-            best_path.append(state)
-        
-        hidden_state_path = np.array([hidden_states_dict[i] for i in best_path[::-1]])
-        # return hidden_state_path, sequence_prob
+        # Back trace to get the best path
+        best_path = np.zeros(num_obs)
+        # Get the index of the final delta
+        best_path[num_obs-1] = np.argmax(all_deltas[:, num_obs-1])
+        for n in range(num_obs-1, 0, -1):
+            best_path[n-1] = paths[int(best_path[n]), n]
+
+        # Convert best_path into words
+        hidden_state_path = np.array([hidden_states_dict[i] for i in best_path])
         return hidden_state_path
-
-
-        # # For each observation state to decode, select the hidden state sequence with the highest probability (i.e., Viterbi trellis)
-        # for trellis_node in range(1, len(decode_observation_states)):
-
-        #     # TODO: comment the initialization, recursion, and termination steps
-
-        #     product_of_delta_and_transition_emission =  np.multiply()
-            
-        #     # Update delta and scale
-
-        #     # Select the hidden state sequence with the maximum probability
-
-        #     # Update best path
-        #     for hidden_state in range(len(self.hmm_object.hidden_states)):
-            
-        #     # Set best hidden state sequence in the best_path np.ndarray THEN copy the best_path to path
-
-        #     #path = best_path.copy()
-
-        # # Select the last hidden state, given the best path (i.e., maximum probability)
-
-        # best_hidden_state_path = np.array([])
-        # best hidden state path is the most likely hidden state sequence
-        # return best_hidden_state_path
-    

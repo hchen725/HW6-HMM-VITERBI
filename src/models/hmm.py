@@ -1,7 +1,7 @@
 import numpy as np
 
 class HiddenMarkovModel:
-    """_summary_
+    """Create an instance of the Hidden Markov Model to calculate probable hidden states
     """
 
     def __init__(self, 
@@ -10,14 +10,14 @@ class HiddenMarkovModel:
                  prior_probabilities: np.ndarray, 
                  transition_probabilities: np.ndarray, 
                  emission_probabilities: np.ndarray):
-        """_summary_
+        """Initialize HMM object
 
         Args:
-            observation_states (np.ndarray): _description_
-            hidden_states (np.ndarray): _description_
-            prior_probabilities (np.ndarray): _description_
-            transition_probabilities (np.ndarray): _description_
-            emission_probabilities (np.ndarray): _description_
+            observation_states (np.ndarray): possible observation states in data
+            hidden_states (np.ndarray): possible hidden states in data
+            prior_probabilities (np.ndarray): start probabilities
+            transition_probabilities (np.ndarray): array of transision probabilies
+            emission_probabilities (np.ndarray): array of emission probabilities
         """             
         self.observation_states = observation_states
         self.observation_states_dict = {observation_state: observation_state_index \

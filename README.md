@@ -96,7 +96,7 @@ def test_deliverable():
 
 We recommend completing these deliverables in the listed order:
 
-- [ ] Implement the Viterbi algorithm in models.decoders.ViterbiAlgorithm found hw6-hmm-viterbi/src/models/decoders.py.
+- [x] Implement the Viterbi algorithm in models.decoders.ViterbiAlgorithm found hw6-hmm-viterbi/src/models/decoders.py.
 
 - [ ] Complete the docstrings in submodules models.hmm and models.decoders by following the pep257 format including pep484 type hints. 
     - Please note, Visual Studio Code supports an extension called [autoDocstring](https://github.com/NilsJPWerner/autoDocstring/blob/HEAD/docs/pep257.md), which will help by creating an automated template for each class method and function.
