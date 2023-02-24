@@ -1,9 +1,15 @@
 import numpy as np
+
 class HiddenMarkovModel:
     """_summary_
     """
 
-    def __init__(self, observation_states: np.ndarray, hidden_states: np.ndarray, prior_probabilities: np.ndarray, transition_probabilities: np.ndarray, emission_probabilities: np.ndarray):
+    def __init__(self, 
+                 observation_states: np.ndarray,
+                 hidden_states: np.ndarray, 
+                 prior_probabilities: np.ndarray, 
+                 transition_probabilities: np.ndarray, 
+                 emission_probabilities: np.ndarray):
         """_summary_
 
         Args:

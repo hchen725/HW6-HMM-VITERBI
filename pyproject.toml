@@ -8,7 +8,7 @@ dynamic=["version"]
 
 [project]
 name = "models"
-authors = [{name = "Andrew Blair", email = "andrew.blair@ucsf.edu"}]
+authors = [{name = "Han Chen", email = "han.chen@ucsf.edu"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
@@ -17,5 +17,10 @@ dependencies = ["pytest", "numpy", "scipy", "matplotlib", "scikit-learn", "sphin
 [tool.coverage.run]
 source = ["src"] # parent directory of package
 
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+
 [project.urls]
-Home = "https://github.com/bmi203-2023/hw6-hmm-viterbi"
+Home = "https://github.com/hchen725/HW6-HMM-VITERBI"
