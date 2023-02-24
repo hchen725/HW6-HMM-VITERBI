@@ -21,6 +21,8 @@ class ViterbiAlgorithm:
         probable_state_probs = np.amax(_delta_trans, axis = 1)
         # Calculate the new delta
         new_delta = probable_state_probs * prob_emiss[:, current_observation]
+        # scale delta 
+        new_delta = new_delta / np.sum(new_delta)
 
         return new_delta, probable_state
 
